@@ -3,15 +3,22 @@ const c = canvas.getContext('2d')
 c.imageSmoothingEnabled = false
 const dpr = window.devicePixelRatio || 1
 
+canvas.width = 1024 * dpr
+canvas.height = 576 * dpr
+
+const MAP_COLS = 28
+const MAP_ROWS = 28
+const MAP_WIDTH = 16 * MAP_COLS
+const MAP_HEIGHT = 16 * MAP_ROWS
 const MAP_SCALE = dpr + 3 // control how much I zoom in the map
+
 const VIEWPORT_WIDTH = canvas.width / MAP_SCALE
 const VIEWPORT_CENTER_X = VIEWPORT_WIDTH / 2
 const VIEWPORT_HEIGHT = canvas.height / MAP_SCALE
 const VIEWPORT_CENTER_Y = VIEWPORT_HEIGHT / 2
+const MAX_SCROLL_X = MAP_WIDTH - VIEWPORT_WIDTH
+const MAX_SCROLL_Y = MAP_HEIGHT - VIEWPORT_HEIGHT
 
-
-canvas.width = 1024 * dpr
-canvas.height = 576 * dpr
 
 const layersData = {
    l_Terrain: l_Terrain,
@@ -188,14 +195,19 @@ function animate(backgroundCanvas) {
   player.handleInput(keys)
   player.update(deltaTime, collisionBlocks)
 
+  const horizontalScrollDistance = Math.min(Math.max(0, player.center.x - VIEWPORT_CENTER_X), MAX_SCROLL_X) // cannot be negative
+  const verticalScrollDistance = Math.min(Math.max(0, player.center.y - VIEWPORT_CENTER_Y), MAX_SCROLL_Y) // cannot be negative
+  // verticalScrollDistance = Math.min(verticalScrollDistance, mapHeightPx - VIEWPORT_HEIGHT)
+
   // Render scene
   c.save()
   // must be inside save/restore to avoid affecting other drawings
   // c.scale(dpr + 3, dpr + 3) // scale bigger
   c.scale(MAP_SCALE, MAP_SCALE) // Make it variable to be more readable
+  c.translate(-horizontalScrollDistance, -verticalScrollDistance) // where do we transfer the map to
   c.clearRect(0, 0, canvas.width, canvas.height)
   c.drawImage(backgroundCanvas, 0, 0, mapWidthPx, mapHeightPx) // Draw the background
-  drawAnimatedTiles(c, currentTime)
+  // drawAnimatedTiles(c, currentTime)
   player.draw(c)
   c.restore()
 

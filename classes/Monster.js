@@ -1,5 +1,5 @@
 class Monster {
-  constructor({ x, y, size, velocity = { x: 0, y: 0 }, imageSrc = './images/bamboo.png', sprites }) {
+  constructor({ x, y, size, velocity = { x: 0, y: 0 }, imageSrc = './images/bamboo.png', sprites , health = 3}) {
     this.x = x
     this.y = y
     this.originalPosition = {
@@ -25,17 +25,30 @@ class Monster {
     this.sprites = sprites
 
     this.currentSprite = Object.values(this.sprites)[0]
+
+    this.health = health
+    this.isInvincible = false
+    this.elapsedInvincibilityTime = 0
+    this.invincibilityInterval = 0.4 // seconds
   }
+
+  receiveHit(amount) {
+    if (this.isInvincible) return // Prevent multiple hits due to multiple calls of receiveHit, maybe caused by multithreads
+    this.health -= amount
+    this.isInvincible = true
+    }
 
   draw(c) {
     if(this.loaded === false){
-        // Red square debug code
+        // Blue square debug code
         c.fillStyle = 'rgba(0, 0, 255, 0.5)'
         c.fillRect(this.x, this.y, this.width, this.height)
     }
     
 
     else{
+        // c.save()
+        c.globalAlpha = this.isInvincible ? 0.5 : 1
         c.drawImage(
             this.image,
             this.currentSprite.x, 
@@ -60,6 +73,13 @@ class Monster {
     if (!deltaTime) return
 
     this.elapsedTime += deltaTime // amount of time passed since last frame
+    if (this.isInvincible) {
+      this.elapsedInvincibilityTime += deltaTime
+      if (this.elapsedInvincibilityTime >= this.invincibilityInterval) {
+        this.isInvincible = false
+        this.elapsedInvincibilityTime = 0
+      }
+    }
 
     // 0 - 3
     const intervalToGoToNextFrame = 0.15

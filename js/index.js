@@ -209,6 +209,7 @@ const monsters = [
     size: 15,
     imageSrc: './images/bamboo.png',
     sprites: monsterSprites,
+    health: 3,
   }),
   new Monster({
     x: 300,
@@ -216,6 +217,7 @@ const monsters = [
     size: 15,
     imageSrc: './images/dragon.png',
     sprites: monsterSprites,
+    health: 3,
   }),
   new Monster({
     x: 48,
@@ -223,6 +225,7 @@ const monsters = [
     size: 15,
     imageSrc: './images/bamboo.png',
     sprites: monsterSprites,
+    health: 3,
   }), 
   new Monster({
     x: 288,
@@ -230,6 +233,7 @@ const monsters = [
     size: 15,
     imageSrc: './images/bamboo.png',
     sprites: monsterSprites,
+    health: 3,
   }), 
   new Monster({
     x: 112,
@@ -237,6 +241,7 @@ const monsters = [
     size: 15,
     imageSrc: './images/dragon.png',
     sprites: monsterSprites,
+    health: 3,
   }),
   new Monster({
     x: 400,
@@ -244,6 +249,7 @@ const monsters = [
     size: 15,
     imageSrc: './images/dragon.png',
     sprites: monsterSprites,
+    health: 3,
   }),
 ]
 
@@ -294,7 +300,28 @@ function animate(backgroundCanvas) {
     const monster = monsters[i]
     monster.update(deltaTime, collisionBlocks)
     monster.draw(c)
+
+    // Detect attack collision with player
+    if (player.attackBox.x + player.attackBox.width >= monster.x &&
+        player.attackBox.x <= monster.x + monster.width &&
+        player.attackBox.y + player.attackBox.height >= monster.y &&
+        player.attackBox.y <= monster.y + monster.height &&
+        player.isAttacking && !player.hasHitMonster) {
+          monster.receiveHit(1)
+          player.hasHitMonster = true
+          console.log(`Monster hit! Remaining health: ${monster.health}`)
+          if (monster.health <= 0) {
+            monsters.splice(i, 1) // Remove monster from array
+          }
+
+    }
   }
+  // if (monsters.length === 0) {
+  //   c.fillStyle = 'white'
+  //   c.font = '30px Arial'
+  //   c.textAlign = 'center'
+  //   c.fillText('You Win!', horizontalScrollDistance + VIEWPORT_CENTER_X, verticalScrollDistance + VIEWPORT_CENTER_Y)
+  // }
   c.drawImage(frontRendersCanvas, 0, 0, mapWidthPx, mapHeightPx) // Draw the front renders
 
   c.restore()

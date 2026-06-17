@@ -91,6 +91,14 @@ class Player {
     this.facing = 'down'
     this.isAttacking = false
     this.attackTimer = 0
+    this.attackBox = {
+      x: this.x,
+      y: this.y,
+      width: 20,
+      height: 5,
+    }
+    this.hasHitMonster = false
+    this.health = 5
   }
 
   switchBackToIdleState(){
@@ -133,26 +141,34 @@ class Player {
 
   draw(c) {
     if(this.loaded === false || this.weaponLoaded === false) {
-      // Red square debug code
+      // Blue square debug code
       c.fillStyle = 'rgba(0, 0, 255, 0.5)'
       c.fillRect(this.x, this.y, this.width, this.height)
       return
     }
 
     else{
-        c.drawImage(
-          this.image,
-          this.currentSprite.x, 
-          this.currentSprite.y + this.currentSprite.height * this.currentFrame + 0.5, // remove 0.5 pixel gap by removing the black lines 
-          this.currentSprite.width, 
-          this.currentSprite.height, 
-          this.x, 
-          this.y, 
-          this.width, 
-          this.height,
-        )
+      // Attack box debug code
+      // c.fillStyle = 'rgba(255, 0, 0, 0.5)'
+      // c.fillRect(
+      //   this.attackBox.x, 
+      //   this.attackBox.y, 
+      //   this.attackBox.width, 
+      //   this.attackBox.height
+      // )
+      c.drawImage(
+        this.image,
+        this.currentSprite.x, 
+        this.currentSprite.y + this.currentSprite.height * this.currentFrame + 0.5, // remove 0.5 pixel gap by removing the black lines 
+        this.currentSprite.width, 
+        this.currentSprite.height, 
+        this.x, 
+        this.y, 
+        this.width, 
+        this.height,
+      )
 
-        if(this.isAttacking === true){
+      if(this.isAttacking === true){
         let angle = 0
         let xOffset = 0
         let yOffset = 0
@@ -202,6 +218,7 @@ class Player {
       this.isAttacking = false
       this.attackTimer = 0
       this.switchBackToIdleState()
+      this.hasHitMonster = false
     }
 
     this.elapsedTime += deltaTime // amount of time passed since last frame
@@ -224,6 +241,32 @@ class Player {
     this.center = {
       x: this.x + this.width / 2,
       y: this.y + this.height / 2
+    }
+    switch(this.facing){
+      case 'down':
+        this.attackBox.x = this.x + 2
+        this.attackBox.y = this.y + 10
+        this.attackBox.width = 6
+        this.attackBox.height = 20
+        break
+      case 'up':
+        this.attackBox.x = this.x + 2
+        this.attackBox.y = this.y - 15
+        this.attackBox.width = 6
+        this.attackBox.height = 20
+        break
+      case 'left':
+        this.attackBox.x = this.x - 16
+        this.attackBox.y = this.y + 9
+        this.attackBox.width = 20
+        this.attackBox.height = 6
+        break
+      case 'right':
+        this.attackBox.x = this.x + 10
+        this.attackBox.y = this.y + 8
+        this.attackBox.width = 20
+        this.attackBox.height = 6
+        break
     }
   }
 

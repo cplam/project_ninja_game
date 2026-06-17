@@ -29,9 +29,21 @@ window.addEventListener('keyup', (event) => {
     case 'd':
       keys.d.pressed = false
       break
-    case ' ':
+    case 'j':
       event.preventDefault()
       player.attack()
+      break
+    case 'k':
+      event.preventDefault()
+      // player.skill_1()
+      break
+    case 'l':
+      event.preventDefault()
+      // player.skill_2()
+      break
+    case ' ':
+      event.preventDefault()
+      // player.skill_ultimate()
       break
   }
 })

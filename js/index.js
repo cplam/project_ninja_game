@@ -210,6 +210,7 @@ const monsters = [
     imageSrc: './images/bamboo.png',
     sprites: monsterSprites,
     health: 3,
+    damage: 1,
   }),
   new Monster({
     x: 300,
@@ -218,6 +219,7 @@ const monsters = [
     imageSrc: './images/dragon.png',
     sprites: monsterSprites,
     health: 3,
+    damage: 1,
   }),
   new Monster({
     x: 48,
@@ -226,6 +228,7 @@ const monsters = [
     imageSrc: './images/bamboo.png',
     sprites: monsterSprites,
     health: 3,
+    damage: 1,
   }), 
   new Monster({
     x: 288,
@@ -234,6 +237,7 @@ const monsters = [
     imageSrc: './images/bamboo.png',
     sprites: monsterSprites,
     health: 3,
+    damage: 1,
   }), 
   new Monster({
     x: 112,
@@ -242,6 +246,7 @@ const monsters = [
     imageSrc: './images/dragon.png',
     sprites: monsterSprites,
     health: 3,
+    damage: 1,
   }),
   new Monster({
     x: 400,
@@ -250,6 +255,7 @@ const monsters = [
     imageSrc: './images/dragon.png',
     sprites: monsterSprites,
     health: 3,
+    damage: 1,
   }),
 ]
 
@@ -270,6 +276,19 @@ const keys = {
 
 let lastTime = performance.now()
 let frontRendersCanvas
+// const hearts = [
+//   new Heart({ x: 10, y: 10 }),
+//   new Heart({ x: 40, y: 10 }),
+//   new Heart({ x: 70, y: 10 }),
+//   new Heart({ x: 100, y: 10 }),
+//   new Heart({ x: 130, y: 10 }),
+// ]
+// But we don't want to hardcode the hearts
+let hearts = [] // make this dynamic to player's health
+for(let i = 0; i < player.max_health; i++){
+  hearts.push(new Heart({ x: 10+(i%16)*24, y: 10 + Math.floor(i/16)*24 }))
+  
+}
 function animate(backgroundCanvas) {
   // Calculate delta time
   const currentTime = performance.now()
@@ -309,10 +328,28 @@ function animate(backgroundCanvas) {
         player.isAttacking && !player.hasHitMonster) {
           monster.receiveHit(1)
           player.hasHitMonster = true
-          console.log(`Monster hit! Remaining health: ${monster.health}`)
+          // console.log(`Monster hit! Remaining health: ${monster.health}`)
           if (monster.health <= 0) {
             monsters.splice(i, 1) // Remove monster from array
           }
+
+    }
+    if (player.x + player.width >= monster.x &&
+        player.x <= monster.x + monster.width &&
+        player.y + player.height >= monster.y &&
+        player.y <= monster.y + monster.height) {
+          if(player.isInvincible || player.current_health <= 0) continue
+          
+          for(let i = 0; i < monster.damage; i++){
+            hearts[player.current_health - i - 1].lossHealth()
+            if(i >= player.current_health-1){
+              // console.log('Player is dead!')
+              break
+            }
+          }
+          player.receiveHit(monster.damage)
+          // console.log(`Player hit! Remaining health: ${player.current_health}`)
+          // console.log(`Player is invincible: ${player.isInvincible}`)
 
     }
   }
@@ -322,8 +359,17 @@ function animate(backgroundCanvas) {
   //   c.textAlign = 'center'
   //   c.fillText('You Win!', horizontalScrollDistance + VIEWPORT_CENTER_X, verticalScrollDistance + VIEWPORT_CENTER_Y)
   // }
+ 
+
   c.drawImage(frontRendersCanvas, 0, 0, mapWidthPx, mapHeightPx) // Draw the front renders
 
+  c.restore()
+  
+  c.save()
+  c.scale(MAP_SCALE, MAP_SCALE)
+    hearts.forEach((heart) => {
+    heart.draw(c)
+  })
   c.restore()
 
   requestAnimationFrame(() => animate(backgroundCanvas))

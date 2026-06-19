@@ -35,6 +35,9 @@ window.addEventListener('keyup', (event) => {
       break
     case 'k':
       event.preventDefault()
+      if(player.current_health < player.max_health) {
+        hearts[player.current_health++].gainHealth()
+      }
       // player.skill_1()
       break
     case 'l':
@@ -43,6 +46,10 @@ window.addEventListener('keyup', (event) => {
       break
     case ' ':
       event.preventDefault()
+      // kill all monsters for cheating
+      for (let i = monsters.length - 1; i >= 0; i--) {
+        monsters.splice(i, 1)
+      }
       // player.skill_ultimate()
       break
   }

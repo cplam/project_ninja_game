@@ -1,5 +1,5 @@
 class Monster {
-  constructor({ x, y, size, velocity = { x: 0, y: 0 }, imageSrc = './images/bamboo.png', sprites , health = 3}) {
+  constructor({ x, y, size, velocity = { x: 0, y: 0 }, imageSrc = './images/bamboo.png', sprites , health = 3, damage = 1}) {
     this.x = x
     this.y = y
     this.originalPosition = {
@@ -29,7 +29,8 @@ class Monster {
     this.health = health
     this.isInvincible = false
     this.elapsedInvincibilityTime = 0
-    this.invincibilityInterval = 0.4 // seconds
+    this.invincibilityInterval = 0.3 // seconds
+    this.damage = damage
   }
 
   receiveHit(amount) {

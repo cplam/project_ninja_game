@@ -98,7 +98,11 @@ class Player {
       height: 5,
     }
     this.hasHitMonster = false
-    this.health = 5
+    this.max_health = 5
+    this.current_health = this.max_health
+    this.isInvincible = false
+    this.elapsedInvincibilityTime = 0
+    this.invincibilityInterval = 0.3 // seconds
   }
 
   switchBackToIdleState(){
@@ -137,6 +141,15 @@ class Player {
         break
     }
   }
+  receiveHit(amount){
+    if (this.isInvincible || this.current_health <= 0) return
+    this.current_health -= amount
+    if(this.current_health < 0) this.current_health = 0
+    this.isInvincible = true
+    // setTimeout(() => {
+    //   this.isInvincible = false
+    // }, 1000) // 1 second of invincibility after getting hit
+  }
   
 
   draw(c) {
@@ -156,6 +169,7 @@ class Player {
       //   this.attackBox.width, 
       //   this.attackBox.height
       // )
+      c.globalAlpha = this.isInvincible ? 0.5 : 1
       c.drawImage(
         this.image,
         this.currentSprite.x, 
@@ -195,6 +209,8 @@ class Player {
             yOffset = 11
             break
         }
+        // This is important, translate the context into the center of player, then draw the weapon
+        // since the weapon is relative to the player, no need to draw Image in this.x, this.y
         c.save()
         c.translate(this.x + xOffset, this.y + yOffset)
         c.rotate(angle) // rotate the weapon in the direction of movement
@@ -222,6 +238,13 @@ class Player {
     }
 
     this.elapsedTime += deltaTime // amount of time passed since last frame
+    if (this.isInvincible) {
+      this.elapsedInvincibilityTime += deltaTime
+      if (this.elapsedInvincibilityTime >= this.invincibilityInterval) {
+        this.isInvincible = false
+        this.elapsedInvincibilityTime = 0
+      }
+    }
 
     // 0 - 3
     const intervalToGoToNextFrame = 0.15

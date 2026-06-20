@@ -37,7 +37,7 @@ class Heart {
     else{
       c.drawImage(
         this.image,
-        this.currentSprite.x + this.currentSprite.height * this.currentFrame, 
+        this.currentSprite.x + this.currentSprite.width * this.currentFrame, 
         this.currentSprite.y,
         this.currentSprite.width, 
         this.currentSprite.height, 

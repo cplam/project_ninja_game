@@ -289,11 +289,23 @@ for(let i = 0; i < player.max_health; i++){
   hearts.push(new Heart({ x: 10+(i%16)*24, y: 10 + Math.floor(i/16)*24 }))
   
 }
+
+const leafs = [
+  new Sprite({ x: 20, y: 20, velocity: { x: 0.08, y: 0.08 } }),
+]
+
+let elapsedTime = 0
+
 function animate(backgroundCanvas) {
   // Calculate delta time
   const currentTime = performance.now()
   const deltaTime = (currentTime - lastTime) / 1000
   lastTime = currentTime
+  elapsedTime += deltaTime
+  if(elapsedTime > 1.5) {
+    leafs.push(new Sprite({ x: Math.random() * 150, y: Math.random() * 50, velocity: { x: 0.08 + Math.random() * 0.05, y: 0.08 + Math.random() * 0.05 } }))
+    elapsedTime = 0
+  }
 
   // Update player position
   player.handleInput(keys)
@@ -301,7 +313,6 @@ function animate(backgroundCanvas) {
 
   const horizontalScrollDistance = Math.min(Math.max(0, player.center.x - VIEWPORT_CENTER_X), MAX_SCROLL_X) // cannot be negative
   const verticalScrollDistance = Math.min(Math.max(0, player.center.y - VIEWPORT_CENTER_Y), MAX_SCROLL_Y) // cannot be negative
-  // verticalScrollDistance = Math.min(verticalScrollDistance, mapHeightPx - VIEWPORT_HEIGHT)
 
   // Render scene
   c.save()
@@ -325,7 +336,8 @@ function animate(backgroundCanvas) {
         player.attackBox.x <= monster.x + monster.width &&
         player.attackBox.y + player.attackBox.height >= monster.y &&
         player.attackBox.y <= monster.y + monster.height &&
-        player.isAttacking && !player.hasHitMonster) {
+        player.isAttacking && !player.hasHitMonster &&
+        !monster.isInvincible) {
           monster.receiveHit(1)
           player.hasHitMonster = true
           // console.log(`Monster hit! Remaining health: ${monster.health}`)
@@ -337,20 +349,18 @@ function animate(backgroundCanvas) {
     if (player.x + player.width >= monster.x &&
         player.x <= monster.x + monster.width &&
         player.y + player.height >= monster.y &&
-        player.y <= monster.y + monster.height) {
+        player.y <= monster.y + monster.height &&
+        !player.isInvincible) {
           if(player.isInvincible || player.current_health <= 0) continue
           
           for(let i = 0; i < monster.damage; i++){
             hearts[player.current_health - i - 1].lossHealth()
             if(i >= player.current_health-1){
-              // console.log('Player is dead!')
+              console.log('Player is dead!')
               break
             }
           }
           player.receiveHit(monster.damage)
-          // console.log(`Player hit! Remaining health: ${player.current_health}`)
-          // console.log(`Player is invincible: ${player.isInvincible}`)
-
     }
   }
   // if (monsters.length === 0) {
@@ -362,6 +372,15 @@ function animate(backgroundCanvas) {
  
 
   c.drawImage(frontRendersCanvas, 0, 0, mapWidthPx, mapHeightPx) // Draw the front renders
+    for (let i = 0; i < leafs.length; i++){
+    const leaf = leafs[i]
+    leaf.update(deltaTime)
+    leaf.draw(c)
+
+    if (leaf.alpha <= 0.005){
+      leafs.splice(i, 1)
+    }
+  }
 
   c.restore()
   
